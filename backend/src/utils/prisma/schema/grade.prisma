@@ -1,0 +1,24 @@
+model Grade {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  employeeType    EmployeeType
+  affectationType AffectationType?
+  isApproved      Boolean?
+
+  // Link to grade history
+  fees Fees[]
+
+  salaryGridId Int?        @unique
+  salaryGrid   SalaryGrid? @relation(name: "currentSalaryGrid", fields: [salaryGridId], references: [id])
+
+  prevSalaryGrid SalaryGrid[]
+
+  employeeStatuses EmployeeStatus[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  employeeDetails EmployeeDetail[]
+
+  // @@unique([name, class, groupe], name: "unique_grade_class_groupe")
+  @@map("grades")
+}

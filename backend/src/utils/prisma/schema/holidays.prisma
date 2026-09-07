@@ -1,0 +1,14 @@
+model Holidays {
+  id    Int       @id @default(autoincrement())
+  name  String
+  date  DateTime?
+  fixed Boolean   @default(false)
+
+  @@unique([date, name])
+  @@map("holidays")
+}
+
+// model FiscalYear {
+//     id   Int    @id @default(autoincrement())
+//     name String @unique
+// }

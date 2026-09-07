@@ -1,0 +1,157 @@
+enum Sexe {
+  M
+  F
+}
+
+enum EmployeeType {
+  STAGIAIRE
+  CONTRACTUAL
+  FONCTIONNAIRE
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+}
+
+enum FormationType {
+  LICENSE
+  DIPLOME
+  CERTIFICATE
+  MASTER
+  DOCTOR
+}
+
+enum EmployeeStateType {
+  NON_ACTIF
+  ACTIF
+  ON_LEAVE
+  SUSPENDED
+  RETIRED
+}
+
+model Employee {
+  id         Int         @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  dob        DateTime?   @db.Date
+  phone      String?
+  ninu       String      @unique
+  nif        String      @unique
+  email      String?     @unique
+  avatar     String?
+  sexe       Sexe
+  bloodGroup BloodGroup?
+
+  hireDate DateTime?
+
+  statusId   Int?               @unique
+  user       Users?
+  formations Formation[]
+  status     EmployeeStatus?    @relation(fields: [statusId], references: [id])
+  leading    Affectation?       @relation("leader")
+  movements  MovementPersonel[]
+
+  presence       EmployeePresence[]
+  attendances    Attendance[]
+  stateHistories EmployeeLeavesRequest[]
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  attestationRequests AttestationRequest[]
+  formationEmp        EmpTraining[]
+  trainingOrganizers  TrainingOrganizers[]
+  radioInspections    RadioInspection[]
+}
+
+model EmployeeStatus {
+  id       Int       @id @default(autoincrement())
+  employee Employee?
+
+  affectationId Int
+  // fonctionId    Int
+  gradeId       Int
+
+  grade       Grade       @relation(fields: [gradeId], references: [id])
+  // fonction    Fonction    @relation(fields: [fonctionId], references: [id])
+  affectation Affectation @relation(fields: [affectationId], references: [id])
+
+  movement MovementPersonel?
+
+  initialSalary         Float              @default(0.0)
+  adjustments           SalaryAdjustment[]
+  attestationPath       String?
+  attestationSignedPath String?
+
+  startDate    DateTime
+  endDate      DateTime? // Null if current status
+  forceEndDate DateTime? // Null if current status
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Formation {
+  id            Int       @id @default(autoincrement())
+  name          String
+  etablissement String
+  startDate     DateTime?
+  endDate       DateTime?
+  totalHours    Int?
+  type          String
+  employee      Employee  @relation(fields: [employeeId], references: [id])
+  employeeId    Int
+  documentName  String?
+
+  @@unique([employeeId, name, etablissement, type], name: "unique_formation_for_agent")
+  @@map("formations")
+}
+
+model Attendance {
+  id              Int      @id @default(autoincrement())
+  employee_id     Int
+  attendance_date DateTime @db.Date
+  status          String   @default("Present") // 'Present', 'Absent', 'Leave'
+
+  // Relation avec l'employé
+  employee Employee @relation(fields: [employee_id], references: [id])
+
+  @@map("attendance") // Fait le lien avec votre table 'attendance'
+}
+
+view EmployeeDetail {
+  id         Int         @unique
+  firstName  String
+  lastName   String
+  sexe       Sexe
+  dob        DateTime?   @db.Date
+  phone      String?
+  ninu       String
+  nif        String
+  email      String?
+  avatar     String?
+  bloodGroup BloodGroup?
+
+  // Fields from EmployeeStatus
+  statusId              Int?
+  affectationId         Int?
+  gradeId               Int?
+  initialSalary         Float
+  attestationPath       String?
+  attestationSignedPath String?
+  startDate             DateTime
+  endDate               DateTime?
+  forceEndDate          DateTime?
+
+  // Relations from EmployeeStatus
+  affectation Affectation? @relation(fields: [affectationId], references: [id])
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
+
+  @@map("employee_details")
+}

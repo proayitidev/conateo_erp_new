@@ -1,0 +1,27 @@
+enum OrganizerType {
+  INSTRUCTOR
+  PROTOCOLE
+}
+
+model EmpTraining {
+  id        Int        @id @default(autoincrement())
+  name      String
+  theme     String
+  date      DateTime?
+  place     String
+  employees Employee[]
+
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  organizers TrainingOrganizers[]
+}
+
+model TrainingOrganizers {
+  type          OrganizerType
+  employee      Employee      @relation(fields: [employeeId], references: [id])
+  EmpTraining   EmpTraining   @relation(fields: [EmpTrainingId], references: [id])
+  employeeId    Int
+  EmpTrainingId Int
+
+  @@unique([employeeId, EmpTrainingId])
+}

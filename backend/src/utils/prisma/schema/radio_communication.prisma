@@ -1,0 +1,250 @@
+enum RadioApplicationStatus {
+  PENDING
+  CANCELED
+  APPROVED
+  REJECTED
+  PENDING_PAYMENT
+  PAYMENT_RECEIVED
+  PENDING_INSPECTION
+  INSPECTION_SCHEDULED
+  INSPECTION_COMPLETED
+  INSPECTION_FAILED
+  PENDING_CERTIFICATE
+  CERTIFICATE_ISSUED
+  PENDING_RENEWAL
+  RENEWED
+}
+
+enum CertificateType {
+  ATTESTATION
+  FREQUENCY_ALLOCATION
+  STATION_LICENSE
+}
+
+enum InspectionStatus {
+  PENDING
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+
+
+model RadioStation {
+  id           String      @id @default(uuid())
+  name         String
+  stationCode  String      @unique
+  type         StationType
+  nif          String
+  tel          String
+  email        String
+  patente      String
+  address      String
+  commune      String
+  department   String
+  site_web     String?
+  coverageZone String
+  latitude     Float?
+  longitude    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications  RadioApplication[]
+  certificates  RadioCertificate[]
+  inspections   StationInspection[]
+  personnel     StationPersonnel[]
+  coverageZones CoverageZone[]
+}
+
+model FrequencyBand {
+  id          String  @id @default(uuid())
+  name        String
+  startFreq   Float
+  endFreq     Float
+  unit        String  @default("MHz")
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations FrequencyAllocation[]
+}
+
+model FrequencyAllocation {
+  id              String        @id @default(uuid())
+  frequencyBandId String
+  frequencyBand   FrequencyBand @relation(fields: [frequencyBandId], references: [id])
+
+  applicationId String
+  application   RadioApplication @relation(fields: [applicationId], references: [id])
+
+  startFreq Float
+  endFreq   Float
+  power     Float
+  unit      String @default("MHz")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PersonnelRole {
+  OWNER
+  MANAGER
+}
+
+model StationPersonnel {
+  id        String       @id @default(uuid())
+  stationId String
+  station   RadioStation @relation(fields: [stationId], references: [id])
+
+  role      PersonnelRole
+  nin       String
+  firstName String
+  lastName  String
+  address   String
+  phone     String
+  email     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CoverageZone {
+  id        String       @id @default(uuid())
+  stationId String
+  station   RadioStation @relation(fields: [stationId], references: [id])
+
+  department String
+  commune    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RadioApplication {
+  id     String                 @id @default(uuid())
+  status RadioApplicationStatus @default(PENDING)
+
+  stationId String
+  station   RadioStation @relation(fields: [stationId], references: [id])
+
+  requestType CertificateType
+  description String?
+
+  paymentStatus RadioApplicationStatus @default(PENDING_PAYMENT)
+
+  inspectionStatus RadioApplicationStatus @default(PENDING_INSPECTION)
+  inspectionId     String?                @unique
+  inspection       StationInspection?     @relation(fields: [inspectionId], references: [id])
+
+  documents Document[]
+
+  signatureName String?
+  signatureDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  factures            RadioFacture[]
+  certificates        RadioCertificate[]
+  allocations         FrequencyAllocation[]
+  certificateRenewals CertificateRenewal[]
+}
+
+model RadioFacture {
+  id       String        @id @default(uuid())
+  amount   Float
+  currency String        @default("HTG")
+  status   FactureStatus @default(CREATED)
+
+  applicationId String
+  application   RadioApplication @relation(fields: [applicationId], references: [id])
+
+  issueDate   DateTime  @default(now())
+  dueDate     DateTime
+  paymentDate DateTime?
+
+  year        Int
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  renewals CertificateRenewal[]
+}
+
+model RadioCertificate {
+  id                String          @id @default(uuid())
+  certificateType   CertificateType
+  certificateNumber String          @unique
+
+  stationId String
+  station   RadioStation @relation(fields: [stationId], references: [id])
+
+  applicationId String
+  application   RadioApplication @relation(fields: [applicationId], references: [id])
+
+  issueDate  DateTime
+  expiryDate DateTime
+
+  frequencies String
+  power       String
+  location    String
+
+  fileUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  renewals CertificateRenewal[]
+}
+
+model CertificateRenewal {
+  id            String           @id @default(uuid())
+  certificateId String
+  certificate   RadioCertificate @relation(fields: [certificateId], references: [id])
+
+  applicationId String
+  application   RadioApplication @relation(fields: [applicationId], references: [id])
+
+  renewalDate   DateTime
+  newExpiryDate DateTime
+
+  factureId String?
+  facture   RadioFacture? @relation(fields: [factureId], references: [id])
+
+  inspectionId String?            @unique
+  inspection   StationInspection? @relation(fields: [inspectionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StationInspection {
+  id     String           @id @default(uuid())
+  status InspectionStatus @default(PENDING)
+
+  stationId String
+  station   RadioStation @relation(fields: [stationId], references: [id])
+
+  applicationId String?
+  application   RadioApplication? @relation
+
+  scheduledDate  DateTime?
+  inspectionDate DateTime?
+  inspectorName  String?
+  inspectorNotes String?
+
+  result String?
+  passed Boolean?
+
+  documents Document[]
+
+  renewal CertificateRenewal?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

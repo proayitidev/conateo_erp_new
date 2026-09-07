@@ -1,0 +1,54 @@
+enum FeeType {
+  ASSURANCE
+  GAZ
+  DEBITCARD
+}
+
+enum AmountType {
+  PERCENT
+  FIXED
+}
+
+model SalaryGrid {
+  id         Int    @id @default(autoincrement())
+  minSalary  Float
+  maxSalary  Float
+  levelData  Float?
+  fiscalYear Int    @default(2024)
+
+  grade Grade? @relation(name: "currentSalaryGrid")
+
+  prevGrade   Grade? @relation(fields: [prevGradeId], references: [id])
+  prevGradeId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("grille_salarial")
+}
+
+model Fees {
+  id         Int        @id @default(autoincrement())
+  type       FeeType
+  amount     Float
+  amountType AmountType
+  grade      Grade      @relation(fields: [gradeId], references: [id])
+  gradeId    Int
+  fiscalYear Int        @default(2024)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, gradeId, fiscalYear], name: "unique_fee_for_grade")
+  @@map("fees")
+}
+
+model SalaryAdjustment {
+  id             Int      @id @default(autoincrement())
+  amount         Float
+  reason         String?
+  adjustmentDate DateTime
+
+  employeeStatus   EmployeeStatus? @relation(fields: [employeeStatusId], references: [id])
+  employeeStatusId Int?
+}

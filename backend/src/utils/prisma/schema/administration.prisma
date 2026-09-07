@@ -1,0 +1,77 @@
+enum AccessLevel {
+  READ
+  CREATE
+  EDIT
+  DELETE
+  UPLOAD
+  DOWNLOAD
+  APPROVE
+}
+
+model Roles {
+  id            String         @id
+  users         Users[]
+  rolePrivs     RolePriv[]
+  modulePrivs   ModulePriv[]
+  documentPrivs DocumentPriv[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RolePriv {
+  roleId      String
+  accessLevel AccessLevel
+  privilegeId String
+  privilege   Privileges  @relation(fields: [privilegeId], references: [code], onDelete: Cascade)
+  role        Roles       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, privilegeId, accessLevel], name: "rolePrivKey")
+}
+
+model ModulePriv {
+  roleId String
+  role   Roles  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  moduleId String
+  module   AppModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, moduleId], name: "rolePrivKey")
+}
+
+model DocumentPriv {
+  roleId         String
+  role           Roles         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  accessLevel    AccessLevel
+  typeDocument   TypeDocuments @relation(fields: [typeDocumentId], references: [id], onDelete: Cascade)
+  typeDocumentId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, typeDocumentId, accessLevel], name: "rolePrivKey")
+}
+
+model Privileges {
+  code     String     @id @unique
+  label    String     @unique
+  rolePriv RolePriv[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppModule {
+  id          String       @id
+  label       String
+  modulePrivs ModulePriv[]
+  image       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

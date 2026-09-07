@@ -1,0 +1,66 @@
+enum FactureStatus {
+  CREATED
+  SENT
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum FactureType {
+  DOUANE
+  HOMOLOGATION
+  SHORTCODE
+  RADIOTELEDIFFUSION
+  NUMEROTATION_PNN
+  FRAIS_PROCEDURE_RADIO
+  FRAIS_PROCEDURE_CHANGEMENT_NOM
+  FRAIS_PROCEDURE_CHANGEMENT_GERANT
+  FRAIS_PROCEDURE_VERIFICATION
+  FRAIS_PROCEDURE_INSPECTION
+  CONCESSION
+  FNE
+  APPPEL_SORTANT
+  FRAIS_RADIO_AMATEUR
+}
+
+enum Currency {
+  HTG
+  USD
+}
+
+model Facture {
+  id                       Int                      @id @default(autoincrement())
+  numero                   String
+  status                   FactureStatus            @default(CREATED)
+  type                     FactureType
+  factureFrequences        FactureFrequence[]
+  homologationApplications HomologationApplication?
+  paymentDate              DateTime?
+  paymentRef               String?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+}
+
+model FactureFrequence {
+  id                 Int               @id @default(autoincrement())
+  factureId          Int
+  facture            Facture           @relation(fields: [factureId], references: [id])
+  nom                String
+  nomGerant          String
+  site               String
+  type               String
+  frequencie         String
+  departement        String
+  anneeFiscal        String
+  redevances         Float
+  stl                Float
+  certificat         Float
+  operateur          Float
+  vignette           Float
+
+  stationFrequence   StationFrequence? @relation(fields: [stationFrequenceId], references: [id])
+  stationFrequenceId Int?
+ 
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}

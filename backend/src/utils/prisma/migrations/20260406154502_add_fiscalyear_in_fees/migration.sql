@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "fees" ADD COLUMN     "fiscalYear" INTEGER NOT NULL DEFAULT 2024;

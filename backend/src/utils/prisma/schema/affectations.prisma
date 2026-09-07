@@ -1,0 +1,33 @@
+enum AffectationType {
+  DIRECTION
+  SECTION
+  SERVICE
+  UNITÉ
+}
+
+model Affectation {
+  id               Int              @id @default(autoincrement())
+  name             String           @unique
+  sigle            String           @unique
+  type             AffectationType
+  leaderId         Int?             @unique
+  leader           Employee?        @relation("leader", fields: [leaderId], references: [id])
+  parentId         Int?
+  parent           Affectation?     @relation("ParentChild", fields: [parentId], references: [id])
+  children         Affectation[]    @relation("ParentChild")
+  typeDocuments    TypeDocuments[]
+  documentRoutes   DocumentRoute[]
+  employeeStatuses EmployeeStatus[]
+  employeeDetails  EmployeeDetail[]
+}
+
+// model Fonction {
+//     id   Int              @id @default(autoincrement())
+//     name String           @unique
+//     // Link to fonction history
+//     type AffectationType?
+
+//     status EmployeeStatus[]
+
+//     @@map("fonctions")
+// }

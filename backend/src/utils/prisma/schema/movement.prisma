@@ -1,0 +1,55 @@
+enum MovementType {
+  DOTATION
+  MUTATION
+  PROMOTION
+  CESSATION
+}
+
+enum DotationType {
+  CONTRACT
+  STAGE
+  NOMINATION
+}
+
+// enum MovementStatus {
+//   PENDING
+//   APPROVED
+//   SIGNED_1
+//   SIGNED_BY_MINISTER
+//   REJECTED
+// }
+
+model MovementPersonel {
+  id                 Int           @id @default(autoincrement())
+  type               MovementType  @default(DOTATION)
+  dotationType       DotationType?
+  // stade              MovementStatus @default(PENDING)
+  approved           Boolean?
+  documentPath       String?
+  signedDocumentPath String?
+
+  employeeId Int
+  statusId   Int @unique
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  startDate DateTime
+  endDate   DateTime?
+
+  documents Documents?
+  status    EmployeeStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model movementSettings {
+  id              Int           @id @default(autoincrement())
+  type            MovementType
+  dotationType    DotationType?
+  documentType    TypeDocuments @relation(fields: [typeDocumentsId], references: [id])
+  typeDocumentsId Int           @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

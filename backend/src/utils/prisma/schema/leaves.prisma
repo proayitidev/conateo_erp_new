@@ -1,0 +1,78 @@
+enum LeavePolicyType {
+  ANNUAL
+  SPECIAL
+  TRAINING
+  PARENTAL
+  MATERNITY
+  SICK
+  LONG_LASTING
+}
+
+model LeavePolicy {
+  id          Int             @id @default(autoincrement())
+  type        LeavePolicyType @unique
+  label       String          @unique
+  description String?
+
+  leaveTiers     LeaveTier[]
+  typeDocumentId Int?
+  typeDocument   TypeDocuments? @relation(fields: [typeDocumentId], references: [id])
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([label])
+}
+
+model LeaveTier {
+  id       Int         @id @default(autoincrement())
+  policyId Int
+  policy   LeavePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  minYearsService Int // 0, 6, 11
+  daysAvailable   Int // Base amount, 20, 25
+
+  @@unique([policyId, minYearsService])
+}
+
+model EmployeeLeavesRequest {
+  id            Int      @id @default(autoincrement())
+  daysRequested Int
+  startDate     DateTime
+  endDate       DateTime
+  approved      Boolean?
+  reason        String   @default("")
+
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  type     LeavePolicyType
+  document Documents?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CarriedOverHistory {
+  id         String @id @default(uuid())
+  employeeId Int
+  policyId   Int // Added this to track which leave is being carried over
+  year       Int
+  amount     Float
+
+  @@unique([employeeId, policyId, year])
+}
+
+view EmployeeLeaveStatus {
+  id                 String
+  employeeId         Int
+  hireDate           DateTime?
+  policyId           Int
+  policyType         LeavePolicyType
+  yearsService       Int             @map("years_service")
+  newDays            Int             @map("new_days")
+  carryOverAvailable Float           @map("carry_over_available")
+  daysAlreadyUsed    Float           @map("days_already_used")
+  currentBalance     Float           @map("current_balance")
+  isOnLeave          Boolean         @map("is_on_leave")
+}

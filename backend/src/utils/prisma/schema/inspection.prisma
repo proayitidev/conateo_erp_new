@@ -1,0 +1,14 @@
+model RadioInspection {
+    id                 Int           @id @default(autoincrement())
+    inspectionDate     DateTime
+    inspecteurId       Int
+    inspecteur         Employee      @relation(fields: [inspecteurId], references: [id])
+    result             String
+    mesuresCorrectives String
+    comments           String
+    radioStation       RadioStationD @relation(fields: [radioStationDId], references: [id])
+    radioStationDId    String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

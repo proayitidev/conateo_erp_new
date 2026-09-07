@@ -1,0 +1,155 @@
+enum TypeResponsable {
+  gerantResponsble
+  responsable_tech
+}
+
+enum StationType {
+  AM
+  FM
+  TV
+}
+
+enum ServiceType {
+  commercial
+  communautaire
+  religieux
+}
+
+enum EquipementType {
+  emetteur
+  stl
+  antenne
+}
+
+model Station {
+  id            String      @id @default(uuid())
+  nom           String
+  NIF           String
+  noReferenceMC String?
+  serviceType   ServiceType
+
+  info                  StationInfo[]
+  stationLocalisationId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StationInfo {
+  id          Int     @id @default(autoincrement())
+  adresse     String
+  patente     String
+  commune     String
+  departement String
+  tel         String
+  email       String?
+  webcasting  Boolean @default(false)
+
+  gerantId              Int?
+  respTechId            Int?
+  stationLicenceId      String?
+  frequenciesId         String?
+  stationLocalisationId Int?
+  gerant                RadioManager?        @relation("stationInfosGerant", fields: [gerantId], references: [id])
+  resp_tech             RadioManager?        @relation("stationInfosRespTech", fields: [respTechId], references: [id])
+  type                  StationType
+  serviceType           ServiceType
+  licence               StationLicence?      @relation(fields: [stationLicenceId], references: [id])
+  frequencies           Frequencies?         @relation(fields: [frequenciesId], references: [id])
+  localisation          StationLocalisation? @relation(fields: [stationLocalisationId], references: [id])
+  equipement            StationEquimenent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  station   Station? @relation(fields: [stationId], references: [id])
+  stationId String?
+}
+
+model stationAddress {
+  id          Int     @id @default(autoincrement())
+  adresse     String
+  patente     String
+  commune     String
+  departement String
+  tel         String
+  email       String?
+}
+
+model RadioManager {
+  id         Int             @id @default(autoincrement())
+  nomComplet String
+  nifNinu    String
+  email      String
+  tel        String
+  type       TypeResponsable
+
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  stationInfosGerant   StationInfo[] @relation("stationInfosGerant")
+  stationInfosRespTech StationInfo[] @relation("stationInfosRespTech")
+}
+
+model StationLicence {
+  id             String    @id @default(uuid())
+  no             String
+  deliveryDate   DateTime?
+  validity       String?
+  expirationDate DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  stationInfos StationInfo[]
+}
+
+model Frequencies {
+  id                 String    @id @default(uuid())
+  frequece_canal     String?
+  puissance_autorise String
+  frequence_stl      String
+  date_assination    DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  stationInfos StationInfo[]
+}
+
+model StationLocalisation {
+  id                        Int           @id @default(autoincrement())
+  adresse_Studio            String
+  emplacement_site_emission String?
+  longiture                 String
+  latitude                  String
+  altitude                  String?
+  stationInfos              StationInfo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StationEquimenent {
+  id               Int             @id @default(autoincrement())
+  type             EquipementType
+  fabricant        String
+  model            String
+  no_serie         String
+  frequence        String?
+  antenne          StationAntenne? @relation(fields: [stationAntenneId], references: [id])
+  stationAntenneId String?
+  stationInfo      StationInfo?    @relation(fields: [stationInfoId], references: [id])
+  stationInfoId    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StationAntenne {
+  id            String  @id @default(uuid())
+  type          String
+  gain_db       String?
+  polarisation  String?
+  hauteur_sol_m String?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  stationEquimenents StationEquimenent[]
+}

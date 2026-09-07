@@ -1,0 +1,93 @@
+enum ApprovalType {
+  create
+  signature
+  approval
+}
+
+enum DocumentStatus {
+  pending
+  approved
+  signed
+  rejected
+}
+
+enum typeDocumentType {
+  ARCHIVAGE
+  TRAINING
+  MOVEMENT
+  LEAVES
+  ATTESTATION
+}
+
+model TypeDocuments {
+  id               Int                @id @default(autoincrement())
+  type             typeDocumentType   @default(ARCHIVAGE)
+  code             String             @unique
+  label            String             @unique
+  description      String             @default("")
+  templatePath     String?
+  documents        Documents[]
+  route            DocumentRoute[]
+  // pendingDocuments PendingDocuments[]
+  affectation      Affectation?       @relation(fields: [affectationId], references: [id])
+  affectationId    Int?
+  template         String?
+  leavePolicy      LeavePolicy[]
+  movementSettings movementSettings[]
+  documentPrivs    DocumentPriv[]
+
+  @@unique([type, code])
+}
+
+model DocumentRoute {
+  id             Int           @id @default(autoincrement())
+  type           ApprovalType
+  index          Int
+  typeDocumentId Int
+  typeDocument   TypeDocuments @relation(fields: [typeDocumentId], references: [id], onDelete: Cascade)
+  affectationId  Int
+  affectation    Affectation   @relation(fields: [affectationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DocumentApproval {
+  id         Int          @id @default(autoincrement())
+  type       ApprovalType
+  document   Documents    @relation(fields: [documentId], references: [id])
+  documentId Int
+  user       Users        @relation(fields: [userId], references: [id])
+  userId     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([documentId, userId, type])
+}
+
+model Documents {
+  id          Int           @id @default(autoincrement())
+  code        String        @unique
+  type        TypeDocuments @relation(fields: [typeId], references: [id])
+  typeId      Int
+  date        DateTime
+  description String        @default("")
+
+  createdBy   Users @relation(name: "uploader", fields: [createdById], references: [id])
+  createdById Int
+
+  path              String?
+  status            DocumentStatus     @default(pending)
+  documentApprovals DocumentApproval[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movementPersonelId      Int?                   @unique
+  employeeLeavesRequestId Int?                   @unique
+  attestationRequestId    Int?                   @unique
+  movement                MovementPersonel?      @relation(fields: [movementPersonelId], references: [id])
+  employeeLeavesRequest   EmployeeLeavesRequest? @relation(fields: [employeeLeavesRequestId], references: [id])
+  attestationRequest      AttestationRequest?    @relation(fields: [attestationRequestId], references: [id])
+}

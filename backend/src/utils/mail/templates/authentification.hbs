@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            background-color: #f4f4f4;
+            padding: 40px 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-top: 4px solid #003366; /* Official Dark Blue */
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .header {
+            padding: 30px;
+            text-align: center;
+            background-color: #ffffff;
+        }
+        .logo {
+            max-width: 180px;
+            height: auto;
+        }
+        .content {
+            padding: 40px;
+            color: #333333;
+            line-height: 1.8;
+        }
+        .user-name {
+            font-weight: bold;
+            color: #003366;
+        }
+        .cta-box {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .button {
+            background-color: #003366;
+            color: #ffffff !important;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .notice {
+            font-size: 13px;
+            color: #666666;
+            border-left: 3px solid #dddddd;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #999999;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h2 style="margin:0; color: #003366;">CONATEL</h2>
+                <p style="margin:5px 0 0; font-size: 12px; letter-spacing: 1px;">Conseil National des Télécommunications</p>
+            </div>
+            
+            <div class="content">
+                <p>Cher/Chère <span class="user-name">{{userName}}</span>,</p>
+                
+                <p>Votre demande d'inscription au portail officiel du <strong>Conseil National des Télécommunications (CONATEL)</strong> a été reçue avec succès.</p>
+                
+                <p>Pour finaliser la création de votre compte et confirmer votre identité, veuillez cliquer sur le bouton ci-dessous :</p>
+                
+                <div class="cta-box">
+                    <a href="{{verificationLink}}" class="button">Confirmer mon inscription</a>
+                </div>
+                
+                <div class="notice">
+                    <strong>Note de sécurité :</strong> Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet e-mail. Ce lien d'activation expirera dans {{expireDate}}.
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>République d'Haïti | CONATEL<br>
+                Avenue Panificatrice, Port-au-Prince<br>
+                <a href="https://www.conatel.gouv.ht" style="color: #999999;">www.conatel.gouv.ht</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

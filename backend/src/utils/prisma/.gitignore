@@ -1,0 +1,4 @@
+node_modules/
+/prisma/seed.ts
+/prisma/generated
+/prisma/migrations

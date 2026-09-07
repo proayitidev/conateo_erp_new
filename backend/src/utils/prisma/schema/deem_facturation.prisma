@@ -1,0 +1,54 @@
+enum CallType {
+  ON_NET
+  OFF_NET
+  INTERNATIONAL
+}
+
+model Operator {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  callPrices OperatorCallPrice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OperatorCallPrice {
+  id         Int @id @default(autoincrement())
+  operatorId Int
+
+  //prices
+  on_net        Float @default(0)
+  off_net       Float @default(0)
+  international Float @default(0)
+
+  operator Operator? @relation(fields: [operatorId], references: [id])
+
+  date      DateTime
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+
+  @@unique([operatorId, date], name: "priceDate")
+}
+
+model Facturation {
+  id             Int      @id @default(autoincrement())
+  callType       CallType
+  date           DateTime
+  operatorName   String
+  operatorPrice  Float
+  callerNumber   String
+  calledNumber   String
+  startTime      DateTime
+  endTime        DateTime
+  startBalance   Float
+  endBalance     Float
+  duration       Float
+  callCost       Float
+  callCostPerMin Float?
+  variation      Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

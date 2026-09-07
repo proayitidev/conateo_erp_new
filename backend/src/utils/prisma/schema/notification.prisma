@@ -1,0 +1,25 @@
+enum NotificationMode {
+  ALL
+  USER
+  MODULE
+  SERVICE
+}
+
+enum NotificationType {
+  MESSAGE
+  ALERT
+  REMINDER
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      Users            @relation(fields: [userId], references: [id])
+  type      NotificationType
+  
+  mode      NotificationMode @default(ALL)
+  info      Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}

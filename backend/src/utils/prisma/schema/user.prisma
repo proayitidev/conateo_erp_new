@@ -1,0 +1,39 @@
+enum UserStatus {
+  ACTIVE
+  AWATING_ACTIVATION
+  SUSPENDED
+  CLOSED
+}
+
+model Users {
+  id       Int        @id
+  status   UserStatus @default(AWATING_ACTIVATION)
+  password String
+
+  roleId String
+
+  role             Roles             @relation(fields: [roleId], references: [id])
+  employee         Employee          @relation(fields: [id], references: [id])
+  authentification Authentification?
+
+  approvedDocs  DocumentApproval[]
+  uploadedDocs  Documents[]        @relation("uploader")
+  notifications Notification[]
+  logs          logs[]
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  digitalSignatures digitalSignature[]
+}
+
+model digitalSignature {
+  id                String @id @default(uuid())
+  userId            Int
+  user              Users  @relation(fields: [userId], references: [id])
+  signaturePath     String
+  oneTimeToken      String
+  publicCertificate String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

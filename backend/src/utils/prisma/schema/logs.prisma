@@ -1,0 +1,29 @@
+model logs {
+  id        Int       @id @default(autoincrement())
+  type      LogType
+  logInfo   Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    Int
+  action    LogAction
+  user      Users     @relation(fields: [userId], references: [id])
+}
+
+enum LogType {
+  USER
+  USER_PASSWORD
+  ROLE
+  PRIVILEGE
+  NUMERISATION
+  DOCUMENYTYPE
+  AFFECTATION
+}
+
+enum LogAction {
+  SIGNOUT
+  SIGNIN
+  CREATE
+  UPDATE
+  DELETE
+  SIGNED
+}

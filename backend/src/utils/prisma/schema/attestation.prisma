@@ -1,0 +1,10 @@
+model AttestationRequest {
+  id         Int            @id @default(autoincrement())
+  employeeId Int
+  employee   Employee       @relation(fields: [employeeId], references: [id])
+  document   Documents?
+  reason     String         @default("")
+  status     DocumentStatus @default(pending)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}

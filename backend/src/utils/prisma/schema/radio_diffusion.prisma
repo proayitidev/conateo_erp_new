@@ -1,0 +1,95 @@
+enum RadioStationLicenceStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+  IN_RENEW
+}
+
+model RadioStationD {
+  id          String      @id @default(uuid())
+  name        String
+  stationCode String      @unique
+  type        StationType
+  nif         String
+  tel         String
+  email       String
+  patente     String
+  address     String
+  commune     String
+  department  String
+  site_web    String?
+
+  licence          RadioStationLicence[]
+  stationFrequance StationFrequence?
+  stationEmetteur  StationEmetteur[]
+  radioInspections RadioInspection[]
+  documents        RadioDiffusionDocument[]
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model StationFrequence {
+  id              Int                @id @default(autoincrement())
+  frequence       String
+  department      String
+  canal           String
+  power           String
+  assign_date     DateTime
+  radioStationDs  RadioStationD?     @relation(fields: [radioStationDId], references: [id])
+  radioStationDId String             @unique
+  facture         FactureFrequence[]
+
+  @@unique([frequence, department])
+}
+
+model StationEmetteur {
+  id              Int           @id @default(autoincrement())
+  fabricant       String
+  modèle         String
+  SN              String
+  nominal_power   String
+  installatinDate DateTime
+  radioStationDs  RadioStationD @relation(fields: [radioStationDId], references: [id])
+  radioStationDId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RadioStationLicence {
+  id               Int                       @id
+  autorisationType String
+  deliverDate      DateTime
+  expirationDate   DateTime
+  Statut           RadioStationLicenceStatus
+
+  radioStationD   RadioStationD? @relation(fields: [radioStationDId], references: [id])
+  radioStationDId String?
+}
+
+enum RadioDiffusionDocumentType {
+  LICENCE
+  DOSSIER_TECHNIQUE
+  RAPPORT_INSPECTION
+  CORRESPONDANCE
+  CERTIFICAT_TECHNIQUE
+  AUTRE
+}
+
+model RadioDiffusionDocument {
+  id          Int                        @id @default(autoincrement())
+  type        RadioDiffusionDocumentType
+  fileName    String
+  filePath    String
+  fileSize    Float
+  fileType    String
+  uploadDate  DateTime                   @default(now())
+  description String?
+
+  radioStationD   RadioStationD @relation(fields: [radioStationDId], references: [id])
+  radioStationDId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
